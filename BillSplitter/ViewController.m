@@ -8,7 +8,14 @@
 
 #import "ViewController.h"
 
-@interface ViewController ()
+@interface ViewController () <UITextFieldDelegate>
+@property (strong, nonatomic) IBOutlet UITextField *totalAmountTextField;
+@property (strong, nonatomic) IBOutlet UISlider *numberOfPeopleSlider;
+@property (strong, nonatomic) IBOutlet UILabel *billForEachLabel;
+@property (strong, nonatomic) IBOutlet UILabel *numberOfPeopleLabel;
+@property (assign, nonatomic) float amountInput;
+@property (assign, nonatomic) int numberofPeople;
+@property (strong, nonatomic) NSNumberFormatter *nf;
 
 @end
 
@@ -16,7 +23,39 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+
+    [self.numberOfPeopleSlider addTarget:self action:@selector(getNumberOfPeople:) forControlEvents:UIControlEventValueChanged];
+    
+    self.totalAmountTextField.delegate = self;
+    [self.totalAmountTextField becomeFirstResponder];
+    
+    self.nf = [[NSNumberFormatter alloc] init];
+    self.nf.numberStyle = NSNumberFormatterCurrencyStyle;
+    self.nf.maximumFractionDigits = 2;
+    
+    self.numberofPeople = 2;
+}
+
+- (IBAction)calculateSplitAmountButtonPressed:(UIButton *)sender {
+    [self.totalAmountTextField resignFirstResponder];
+    
+    self.numberOfPeopleLabel.text = [NSString stringWithFormat:@"%d", self.numberofPeople];
+    
+    self.billForEachLabel.text = [self.nf stringFromNumber: [NSDecimalNumber numberWithFloat:self.amountInput/self.numberofPeople]];
+}
+
+-(IBAction)getNumberOfPeople:(UISlider *)sender {
+    [self.totalAmountTextField resignFirstResponder];
+    
+    self.numberofPeople = sender.value;
+    self.numberOfPeopleLabel.text = [NSString stringWithFormat:@"%d", self.numberofPeople];
+    
+    self.billForEachLabel.text = [self.nf stringFromNumber: [NSDecimalNumber numberWithFloat:self.amountInput/self.numberofPeople]];
+    
+}
+
+-(void)textFieldDidEndEditing:(UITextField *)textField {
+    self.amountInput = [self.totalAmountTextField.text floatValue];
 }
 
 - (void)didReceiveMemoryWarning {
